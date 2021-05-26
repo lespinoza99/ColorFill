@@ -1,0 +1,57 @@
+*{
+    text-align: center;
+}
+.box {
+    width: 10px;
+    height: 10px;
+    border: solid 2px black;
+}
+
+.line {
+    display: flex;
+    justify-content: center;
+}
+
+#bottom {
+    display: flex;
+    margin-top: 50px;
+    justify-content: center;
+}
+
+#bottom div {
+    width: 100px;
+    height: 100px;
+    border-style: solid;
+    
+}
+
+#blue {
+    background-color: blue;
+    margin-right: 15px;
+}
+
+#green {
+    background-color: green;
+    margin-right: 15px;
+}
+
+#red {
+    background-color: red;
+    margin-right: 15px;
+}
+
+#yellow{
+    background-color: yellow;
+    margin-right: 15px;
+}
+#orange{
+    background-color: orange;
+    margin-right: 15px;
+}
+#violet{
+    background-color: violet;
+    margin-right: 15px;
+}
+#random{
+    margin-top: 10px;
+}

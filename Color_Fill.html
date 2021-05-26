@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ColorFill</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body onmouseup="deactivateDrag()">
+    <h1>Welcome to ColorFill!</h1>
+    <div  id="middle">
+
+    </div>
+
+    <div id="bottom">
+        <div id="blue">
+
+        </div>
+        <div id="green">
+
+        </div>
+        <div id="red">
+
+        </div>
+        <div id="yellow">
+
+        </div>
+        <div id="orange">
+
+        </div>
+        
+        <div id="violet">
+
+        </div>
+        
+        
+    </div>
+    <button id="random" onclick="randomColor()"> Random Color </button>
+    <button onclick="modFill()" > Modified Fill </button>
+    <p id="currColor">Current color: blue </p>
+    <p id="fillMod">Modified Fill: Off</p>
+
+</body>
+
+<script>
+
+    //Default color is blue
+    var pickedColor = 'blue';
+    var bottom = document.getElementById('bottom');
+ 
+    //Default modified fill to false
+    let modifiedFill = false;
+    function ColorFill(e) {
+        //Shift clicking will trigger our ColorFill algorithm
+        if (e.shiftKey) {
+
+            console.log('Shift key pressed!')
+            function converToArray(accessKey) {
+                return JSON.parse(accessKey)
+            }
+
+            var starting = converToArray(this.accessKey)
+
+            var grid = document.getElementById('middle')
+            var targetVal = this.style.backgroundColor;
+
+            function ColorFilledRecurvise(board, value, column, row) {
+
+                function traverse(column, row) {
+                    //Checking if the grid position we want to travel to is the same color as the color we shift clicked
+                    if (board.children[column].children[row].style.backgroundColor == targetVal) {
+                        console.log("Currently at (" + column + ", " + row + ")");
+                        //If colors match, we change the color to our new color we chose
+                        board.children[column].children[row].style.backgroundColor = value;
+                        //Making sure we are not going out of bounds
+                        if (column < board.children.length - 1) {
+                         
+                            if(modifiedFill == false){
+                                //Once we pass the prior if checks, we recursively call our function to go through the function again and follow all previous steps.
+                                //This will happen at each if check that makes sure we are not going out of bounds until we don't pass any if checks anymore.
+                                traverse(column + 1, row); //Down
+                            }else{
+                            //If modified fill is turned on, we only change the color of the adjacent blocks
+                                if(board.children[column + 1].children[row].style.backgroundColor == targetVal ){
+                                    board.children[column + 1].children[row].style.backgroundColor = value
+                                }
+                            }
+                        }
+                        //Making sure we are not going out of bounds
+                        if (row < board.children.length - 1) {
+                           
+                            if(modifiedFill == false){
+                                traverse(column, row + 1); //Right
+
+                            }else{
+                                if( board.children[column].children[row + 1].style.backgroundColor == targetVal ){
+                                    board.children[column].children[row + 1].style.backgroundColor = value
+                                }
+                            }
+                        }
+                        //Making sure we are not going out of bounds
+                        if (column > 0) {
+                          
+                            if(modifiedFill == false){
+                                traverse(column - 1, row); //Up
+
+                            }else{
+                                if( board.children[column - 1].children[row].style.backgroundColor == targetVal  ){
+                                    board.children[column - 1].children[row].style.backgroundColor = value
+                                }
+                            }
+                        }
+                        //Making sure we are not going out of bounds
+                        if (row > 0) {
+                      
+                            if(modifiedFill == false){
+                                traverse(column, row - 1); //Left
+                            }else{
+                                if(board.children[column].children[row - 1].style.backgroundColor == targetVal ){
+                                    board.children[column].children[row - 1].style.backgroundColor = value
+                                }
+                            }
+                        }
+                    }
+
+
+                };
+                traverse(column, row)
+               
+                return "Board filled!";
+            }
+            ColorFilledRecurvise(grid, pickedColor, starting[0], starting[1])
+
+        }else{
+            //Only change the color of the block we click on
+            this.style.backgroundColor = pickedColor;
+        }
+
+    }
+
+
+    let dragging = false;
+
+    //On Mouse down we activate the dragging feature, if the dragging feature is turned on, we color the board as if we were using a pencil on paper.
+    function colorDrag(){
+       
+        if(dragging == true){
+
+            this.style.backgroundColor = pickedColor;
+        }
+        
+    }
+    //Function used to deactivate drag for certain edge cases where the drag feature will not deactivate
+    function deactivateDrag(){
+        dragging = false;
+       
+    }
+
+    function activateDrag(){
+        dragging = !dragging;
+       
+    }
+
+    //Function used to create our grid, it takes in a size so we can customize the size of the grid
+    function makeGrid(size) {
+        var newLine, newBox;
+        var div = document.getElementById('middle');
+
+        for (var i = 0; i < size; i++) {
+            newLine = document.createElement('div');
+            newLine.className = 'line';
+            div.appendChild(newLine);
+
+            for (var j = 0; j < size; j++) {
+                newBox = document.createElement('div');
+                newBox.className = 'box';
+                newBox.style.backgroundColor = 'white'
+                newBox.onclick = ColorFill;
+                newBox.onmousemove = colorDrag;
+                newBox.onmousedown = activateDrag;
+                newBox.onmouseup = activateDrag;
+                newBox.accessKey = JSON.stringify([i, j]);
+                newLine.appendChild(newBox);
+            }
+        }
+    }
+
+    function changePickerColor(e) {
+        if (e.shiftKey) {
+            console.log("Shiftkey Pressed")
+        }
+        pickedColor = this.id;
+        console.log(pickedColor);
+        //Dynamically change the color on screen to see what color the user has selected
+        document.getElementById("currColor").innerHTML = `Current color: ${pickedColor}`;
+    };
+
+    let colors = [];
+    //This function selects a random color 
+    function randomColor(){
+    let randColor = colors[Math.floor(Math.random()*colors.length)]
+    pickedColor = randColor;
+    document.getElementById("currColor").innerHTML = `Current color: ${pickedColor}`;
+    }
+
+    function modFill(){
+        modifiedFill = !modifiedFill;
+        document.getElementById("fillMod").innerHTML = `Modified Fill: ${ modifiedFill == false ? 'Off' : 'On'}`
+
+    }
+
+    
+    for (var i = 0; i < bottom.children.length; i++) {
+        bottom.children[i].onclick = changePickerColor;
+        //Push colors into array for the random color selector
+        colors.push(bottom.children[i].id)
+
+        
+    }
+
+    makeGrid(20);
+
+
+
+
+</script>
+
+</html>
